@@ -1,28 +1,30 @@
 import http from 'http';
-import sqlite3, { Database } from 'sqlite3';
+import sqlite3 from 'sqlite3';
+import { sequelize } from './models/models.js';
 
 import rotas from './routes/route.js';
 
-const db = sqlite3.Database('../db/db.sql', (erro) => {
-    if(erro) {
+const db = new sqlite3.Database('./db/db.db', (erro) => {
+    if (erro) {
         console.error(erro.message);
     } else {
-        console.log("Banco de dados SQLite iniciado com sucesso.");
+        console.log("\nBanco de dados SQLite iniciado com sucesso.");
     }
 });
 
 function IniciarServidorHTTP() {
 
+    sequelize.sync();
+
     const servidor = http.createServer((req, res) => {
-        res.statusCode = 200;
-        res.setHeader('Content-type', 'text/plain; charset=utf-8');
+        rotas(req, res);
     });
 
     const porta = 3000;
     const host = 'localhost';
 
     servidor.listen(porta, host, () => {
-        console.log(`Servidor iniciado!\nExecutando em http://${host}:${porta}/`);
+        console.log(`\nServidor iniciado!\nExecutando em http://${host}:${porta}/`);
     });
 
 };

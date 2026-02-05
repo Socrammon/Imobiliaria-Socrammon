@@ -2,13 +2,13 @@ import { Sequelize } from 'sequelize';
 
 export const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: '../../db/db.sql'
+    storage: './db/db.db'
 });
 
 sequelize.authenticate();
 
 export const Imovel = sequelize.define('imovel', {
-    
+
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -44,7 +44,8 @@ export const Imovel = sequelize.define('imovel', {
     },
     dataAnuncio: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
+        defaultValue: Sequelize.NOW
     },
     descricao: {
         type: Sequelize.TEXT,
@@ -58,19 +59,19 @@ export async function criaImovel(imovel) {
         const resultado = await Imovel.create(imovel);
         console.log(`\nImóvel número ${resultado.id} criado com sucesso.`);
         return resultado;
-    } catch(erro) {
+    } catch (erro) {
         console.log('\nNão foi possível criar o imóvel', erro);
         throw erro;
     }
 }
 
-export async function leImovel() {
+export async function leImoveis() {
 
     try {
         const resultado = await Imovel.findAll();
         console.log(`\nImóveis encontrados com sucesso.`);
         return resultado;
-    } catch(erro) {
+    } catch (erro) {
         console.log('\nNão foi possível encontrar os imóveis', erro);
         throw erro;
     }
@@ -83,20 +84,20 @@ export async function leImovelPorId(id) {
         const resultado = await Imovel.findByPk(id);
         console.log(`\nImóvel número ${resultado.id} encontrado com sucesso.`);
         return resultado;
-    } catch(erro) {
+    } catch (erro) {
         console.log('\nNão foi possível encontrar o imóvel', erro);
         throw erro;
     }
 
 }
 
-export async function atualizaImovel(id, dadosImovel) {
+export async function atualizaImovelPorId(id, dadosImovel) {
 
     try {
         const resultado = await Imovel.findByPk(id);
-        if(resultado?.id) {
-            for(const chave in dadosImovel) {
-                if(chave in resultado) {
+        if (resultado?.id) {
+            for (const chave in dadosImovel) {
+                if (chave in resultado) {
                     resultado[chave] = dadosImovel[chave];
                 }
             }
@@ -104,20 +105,20 @@ export async function atualizaImovel(id, dadosImovel) {
             console.log(`\nImóvel número ${resultado.id} atualizado com sucesso.`);
         }
         return resultado;
-    } catch(erro) {
+    } catch (erro) {
         console.log('\nNão foi possível atualizar o imóvel', erro);
         throw erro;
     }
 
 }
 
-export async function deletaImovel(id) {
+export async function deletaImovelPorId(id) {
 
     try {
-        const resultado = await Imovel.destroy({where: {id: id}});
+        const resultado = await Imovel.destroy({ where: { id: id } });
         console.log(`\nImóvel número ${resultado.id} deletado com sucesso.`);
         return resultado;
-    } catch(erro) {
+    } catch (erro) {
         console.log('\nNão foi possível deletar o imóvel', erro);
         throw erro;
     }
