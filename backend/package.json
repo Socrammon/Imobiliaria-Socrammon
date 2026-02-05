@@ -1,0 +1,29 @@
+{
+  "name": "imobiliaria-socrammon",
+  "version": "1.0.0",
+  "description": "Plataforma web de imobiliária desenvolvida para simular um sistema real de venda e aluguel de imóveis. Projeto criado com foco em portfólio, estudo prático de arquitetura de sistemas web e construção de aplicações completas.",
+  "main": "src/app,js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Socrammon/Imobiliaria-Socrammon.git"
+  },
+  "keywords": [
+    "imobiliaria"
+  ],
+  "author": "Marcos Alcides",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Socrammon/Imobiliaria-Socrammon/issues"
+  },
+  "homepage": "https://github.com/Socrammon/Imobiliaria-Socrammon#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "sequelize": "^6.37.7",
+    "sqlite3": "^5.1.7"
+  }
+}
