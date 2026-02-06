@@ -1,11 +1,7 @@
-import { Sequelize } from 'sequelize';
+import Sequelize from 'sequelize';
+import chalk from 'chalk';
 
-export const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: './db/db.db'
-});
-
-sequelize.authenticate();
+import { sequelize } from "../database/sequelize.js";
 
 export const Imovel = sequelize.define('imovel', {
 
@@ -57,10 +53,10 @@ export const Imovel = sequelize.define('imovel', {
 export async function criaImovel(imovel) {
     try {
         const resultado = await Imovel.create(imovel);
-        console.log(`\nImóvel número ${resultado.id} criado com sucesso.`);
+        console.log(chalk.green(`Imóvel número ${resultado.id} criado com sucesso.\n`));
         return resultado;
     } catch (erro) {
-        console.log('\nNão foi possível criar o imóvel', erro);
+        console.log('Não foi possível criar o imóvel. ', erro, '\n');
         throw erro;
     }
 }
@@ -69,10 +65,10 @@ export async function leImoveis() {
 
     try {
         const resultado = await Imovel.findAll();
-        console.log(`\nImóveis encontrados com sucesso.`);
+        console.log(chalk.blue(`Imóveis encontrados com sucesso.\n`));
         return resultado;
     } catch (erro) {
-        console.log('\nNão foi possível encontrar os imóveis', erro);
+        console.log('Não foi possível encontrar os imóveis. ', erro, '\n');
         throw erro;
     }
 
@@ -82,10 +78,10 @@ export async function leImovelPorId(id) {
 
     try {
         const resultado = await Imovel.findByPk(id);
-        console.log(`\nImóvel número ${resultado.id} encontrado com sucesso.`);
+        console.log(chalk.blue(`Imóvel número ${resultado.id} encontrado com sucesso.\n`));
         return resultado;
     } catch (erro) {
-        console.log('\nNão foi possível encontrar o imóvel', erro);
+        console.log('Não foi possível encontrar o imóvel. ', erro, '\n');
         throw erro;
     }
 
@@ -102,11 +98,11 @@ export async function atualizaImovelPorId(id, dadosImovel) {
                 }
             }
             resultado.save();
-            console.log(`\nImóvel número ${resultado.id} atualizado com sucesso.`);
         }
+        console.log(chalk.yellow(`Imóvel número ${resultado.id} atualizado com sucesso.\n`));
         return resultado;
     } catch (erro) {
-        console.log('\nNão foi possível atualizar o imóvel', erro);
+        console.log('Não foi possível atualizar o imóvel. ', erro, '\n');
         throw erro;
     }
 
@@ -116,10 +112,16 @@ export async function deletaImovelPorId(id) {
 
     try {
         const resultado = await Imovel.destroy({ where: { id: id } });
-        console.log(`\nImóvel número ${resultado.id} deletado com sucesso.`);
+
+        if (resultado === 0) {
+            console.log('Não foi possível deletar o imóvel. ', erro, '\n');
+            return;
+        }
+
+        console.log(chalk.red(`Imóvel número ${id} deletado com sucesso.\n`));
         return resultado;
     } catch (erro) {
-        console.log('\nNão foi possível deletar o imóvel', erro);
+        console.log('Não foi possível deletar o imóvel. ', erro, '\n');
         throw erro;
     }
 
