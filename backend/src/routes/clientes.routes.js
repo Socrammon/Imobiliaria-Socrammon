@@ -1,8 +1,9 @@
 import express from 'express';
+import chalk from 'chalk';
 
 import { registraCliente, registraClientes, buscaClientes, buscaClientePorId, atualizaClientePorId, deletaClientePorId } from "../models/cliente.js";
 
-import { validarCliente } from '../validators/cliente.validator.js';
+import { validarCliente, validarCamposObrigatoriosCliente } from '../validators/cliente.validator.js';
 
 export const rotasClientes = express.Router();
 
@@ -90,7 +91,28 @@ rotasClientes.post('/clientes', validarCliente, async (req, res, next) => {
 
         if (Array.isArray(clientes)) {
             const resultado = await registraClientes(clientes);
-            return res.status(201).send(resultado);
+            res.statusCode = 201;
+            res.send(resultado);
+            return;
+        }
+
+        const faltando = validarCamposObrigatoriosCliente(clientes);
+
+        if (faltando.length) {
+            const resposta = {
+                erro: {
+                    mensagem: `O atributo '${faltando}' não foi encontrado, porém é obrigatório para o registro do cliente.`
+                }
+            };
+
+            res.statusCode = 400;
+
+            console.log(chalk.bgRed.bold(`Não foi possível registrar o cliente. Atributo '${faltando}' faltando.\n`));
+            
+            res.send(resposta);
+
+            return;
+
         }
 
         const resposta = await registraCliente(clientes);

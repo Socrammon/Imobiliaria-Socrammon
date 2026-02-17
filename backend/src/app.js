@@ -5,6 +5,8 @@ import { rotasImoveis } from './routes/imoveis.routes.js';
 import { rotasProprietarios } from './routes/proprietarios.routes.js';
 import { rotasClientes } from './routes/clientes.routes.js';
 
+import './models/index.js';
+
 import { sequelize, conectarBanco } from './config/sequelize.js';
 
 const app = express();

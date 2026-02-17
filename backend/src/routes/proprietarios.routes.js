@@ -1,8 +1,9 @@
 import express from 'express';
+import chalk from 'chalk';
 
 import { registraProprietario, registraProprietarios, buscaProprietarios, buscaProprietarioPorId, atualizaProprietarioPorId, deletaProprietarioPorId } from "../models/proprietario.js";
 
-import { validarProprietario } from '../validators/proprietario.validator.js';
+import { validarProprietario, validarCamposObrigatoriosProprietario } from '../validators/proprietario.validator.js';
 
 export const rotasProprietarios = express.Router();
 
@@ -90,7 +91,28 @@ rotasProprietarios.post('/proprietarios', validarProprietario, async (req, res, 
 
         if (Array.isArray(proprietarios)) {
             const resultado = await registraProprietarios(proprietarios);
-            return res.status(201).send(resultado);
+            res.statusCode = 201;
+            res.send(resultado);
+            return;
+        }
+
+        const faltando = validarCamposObrigatoriosProprietario(proprietarios);
+
+        if (faltando.length) {
+            const resposta = {
+                erro: {
+                    mensagem: `O atributo '${faltando}' não foi encontrado, porém é obrigatório para o registro do proprietário.`
+                }
+            };
+
+            res.statusCode = 400;
+
+            console.log(chalk.bgRed.bold(`Não foi possível registrar o proprietário. Atributo '${faltando}' faltando.\n`));
+
+            res.send(resposta);
+
+            return;
+
         }
 
         const resposta = await registraProprietario(proprietarios);

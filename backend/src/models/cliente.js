@@ -22,31 +22,94 @@ export const Cliente = sequelize.define('cliente', {
             len: [10, 11]
         }
     },
+    segundoContato: {
+        type: Sequelize.STRING(11),
+        allowNull: true,
+        validate: {
+            isNumeric: true,
+            len: [10, 11]
+        }
+    },
+    email: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+        set(value) {
+            this.setDataValue('email', value.toLowerCase());
+        },
+        validate: {
+            isEmail: true
+        },
+        unique: true
+    },
+    tipo: {
+        type: Sequelize.ENUM('PF', 'PJ'),
+        allowNull: false
+    },
     cpf: {
         type: Sequelize.STRING(11),
-        allowNull: false,
+        allowNull: true,
         validate: {
             isNumeric: true,
             len: [11, 11]
+        },
+        unique: true
+    },
+    cnpj: {
+        type: Sequelize.STRING(14),
+        allowNull: true,
+        validate: {
+            isNumeric: true,
+            len: [14, 14]
+        },
+        unique: true
+    },
+    dataRegistro: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW
+    }
+}, {
+    validate: {
+        documentoObrigatorio() {
+
+            if (this.tipo === 'PF') {
+                if (!this.cpf) {
+                    throw new Error('CPF é obrigatório para pessoa física');
+                }
+                if (this.cnpj) {
+                    throw new Error('Pessoa física não pode ter CNPJ');
+                }
+            }
+
+            if (this.tipo === 'PJ') {
+                if (!this.cnpj) {
+                    throw new Error('CNPJ é obrigatório para pessoa jurídica');
+                }
+                if (this.cpf) {
+                    throw new Error('Pessoa jurídica não pode ter CPF');
+                }
+            }
         }
     }
 
-});
+}
+
+);
 
 export async function registraCliente(cliente) {
     try {
         const resultado = await Cliente.create(cliente);
-        console.log(chalk.green(`Cliente número ${resultado.id} registrado com sucesso.\n`));
+        console.log(chalk.bgWhite.green.bold(`Cliente número ${resultado.id} registrado com sucesso.\n`));
         return resultado;
     } catch (erro) {
-        console.log('Não foi possível registrar o cliente. ', erro, '\n');
+        console.log(chalk.bgRed.bold('Não foi possível registrar o cliente. ', erro, '\n'));
         throw erro;
     }
 }
 
 export async function registraClientes(cliente) {
     try {
-        const resultado = await cliente.bulkCreate(cliente);
+        const resultado = await Cliente.bulkCreate(cliente);
         console.log(chalk.bgWhite.green.bold(`Clientes registrados com sucesso.\n`));
         return resultado;
     } catch (erro) {
@@ -59,10 +122,10 @@ export async function buscaClientes() {
 
     try {
         const resultado = await Cliente.findAll();
-        console.log(chalk.blue(`Clientes encontrados com sucesso.\n`));
+        console.log(chalk.bgWhite.blue.bold(`Clientes encontrados com sucesso.\n`));
         return resultado;
     } catch (erro) {
-        console.log('Não foi possível encontrar os clientes. ', erro, '\n');
+        console.log(chalk.bgRed.bold('Não foi possível encontrar os clientes. ', erro, '\n'));
         throw erro;
     }
 
@@ -72,10 +135,10 @@ export async function buscaClientePorId(id) {
 
     try {
         const resultado = await Cliente.findByPk(id);
-        console.log(chalk.blue(`Cliente número ${resultado.id} encontrado com sucesso.\n`));
+        console.log(chalk.bgWhite.blue.bold(`Cliente número ${resultado.id} encontrado com sucesso.\n`));
         return resultado;
     } catch (erro) {
-        console.log('Não foi possível encontrar o cliente. ', erro, '\n');
+        console.log(chalk.bgRed.bold('Não foi possível encontrar o cliente. ', erro, '\n'));
         throw erro;
     }
 
@@ -93,10 +156,10 @@ export async function atualizaClientePorId(id, dadosCliente) {
             }
             resultado.save();
         }
-        console.log(chalk.yellow(`Cliente número ${resultado.id} atualizado com sucesso.\n`));
+        console.log(chalk.bgWhite.yellow.bold(`Cliente número ${resultado.id} atualizado com sucesso.\n`));
         return resultado;
     } catch (erro) {
-        console.log('Não foi possível atualizar o cliente. ', erro, '\n');
+        console.log(chalk.bgRed.bold('Não foi possível atualizar o cliente. ', erro, '\n'));
         throw erro;
     }
 
@@ -112,10 +175,10 @@ export async function deletaClientePorId(id) {
             return;
         }
 
-        console.log(chalk.red(`Cliente número ${id} deletado com sucesso.\n`));
+        console.log(chalk.bgWhite.red.bold(`Cliente número ${id} deletado com sucesso.\n`));
         return resultado;
     } catch (erro) {
-        console.log('Não foi possível deletar o cliente. ', erro, '\n');
+        console.log(chalk.bgRed.bold('Não foi possível deletar o cliente. ', erro, '\n'));
         throw erro;
     }
 

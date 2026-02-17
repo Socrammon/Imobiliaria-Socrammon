@@ -3,10 +3,11 @@ import chalk from "chalk";
 const campos = [
     'nome',
     'contato',
-    'cpf'
+    'email',
+    'tipo'
 ];
 
-export function validarCamposObrigatorios(cliente) {
+export function validarCamposObrigatoriosCliente(cliente) {
     const faltando = [];
     for (const campo of campos) {
         if (!cliente[campo]) {
@@ -26,7 +27,9 @@ export function validarCliente(req, res, next) {
 
     for (let i = 1; i < dados.length; i++) {
 
-        const faltando = validarCamposObrigatorios(dados[i]);
+        const cliente = dados[i];
+
+        const faltando = validarCamposObrigatoriosCliente(dados[i]);
 
         if (faltando.length) {
             const resposta = {
@@ -34,7 +37,18 @@ export function validarCliente(req, res, next) {
                     mensagem: `O atributo '${faltando}' não foi encontrado, porém é obrigatório para o registro do cliente número ${i + 1}.`
                 }
             };
-            console.log(chalk.bgRed.bold(`Não foi possível registrar o cliente número ${i + 1}. Atributo '${faltando}' faltando.\n`), `ReferenceError: erro is not defined\n     at deletaClientePorId (file:///Z:/Projetos/Imobiliaria-Socrammon/backend/src/models/cliente.js:53:0)\n     at async file:///Z:/Projetos/Imobiliaria-Socrammon/backend/src/routes/clientes.routes.js:110:0\n`);
+            console.log(chalk.bgRed.bold(`Não foi possível registrar o cliente número ${i + 1}. Atributo '${faltando}' faltando.\n`));
+            return res.send(resposta);
+        }
+
+        if (!cliente.cpf && !cliente.cnpj) {
+
+            const resposta = {
+                erro: {
+                    mensagem: `O cliente número ${i + 1} deve informar CPF ou CNPJ.`
+                }
+            };
+            console.log(chalk.bgRed.bold(`Cliente número ${i + 1} sem CPF e sem CNPJ.\n`));
             return res.send(resposta);
         }
 

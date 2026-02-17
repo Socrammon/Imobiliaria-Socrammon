@@ -1,8 +1,9 @@
 import express from 'express';
+import chalk from 'chalk';
 
 import { registraImovel, registraImoveis, buscaImoveis, buscaImovelPorId, atualizaImovelPorId, deletaImovelPorId } from "../models/imovel.js";
 
-import { validarImovel } from '../validators/imovel.validator.js';
+import { validarImovel, validarCamposObrigatoriosImovel } from '../validators/imovel.validator.js';
 
 export const rotasImoveis = express.Router();
 
@@ -90,7 +91,28 @@ rotasImoveis.post('/imoveis', validarImovel, async (req, res, next) => {
 
         if (Array.isArray(imoveis)) {
             const resultado = await registraImoveis(imoveis);
-            return res.status(201).send(resultado);
+            res.statusCode = 201;
+            res.send(resultado);
+            return;
+        }
+
+        const faltando = validarCamposObrigatoriosImovel(imoveis);
+
+        if (faltando.length) {
+            const resposta = {
+                erro: {
+                    mensagem: `O atributo '${faltando}' não foi encontrado, porém é obrigatório para o registro do imóvel.`
+                }
+            };
+
+            res.statusCode = 400;
+
+            console.log(chalk.bgRed.bold(`Não foi possível registrar o imóvel. Atributo '${faltando}' faltando.\n`));
+            
+            res.send(resposta);
+
+            return;
+
         }
 
         const resposta = await registraImovel(imoveis);

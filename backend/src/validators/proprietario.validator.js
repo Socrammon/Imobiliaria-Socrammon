@@ -3,10 +3,11 @@ import chalk from "chalk";
 const campos = [
     'nome',
     'contato',
-    'cpf'
+    'email',
+    'tipo'
 ];
 
-export function validarCamposObrigatorios(proprietario) {
+export function validarCamposObrigatoriosProprietario(proprietario) {
     const faltando = [];
     for (const campo of campos) {
         if (!proprietario[campo]) {
@@ -26,7 +27,9 @@ export function validarProprietario(req, res, next) {
 
     for (let i = 1; i < dados.length; i++) {
 
-        const faltando = validarCamposObrigatorios(dados[i]);
+        const proprietario = dados[i];
+
+        const faltando = validarCamposObrigatoriosProprietario(dados[i]);
 
         if (faltando.length) {
             const resposta = {
@@ -34,11 +37,23 @@ export function validarProprietario(req, res, next) {
                     mensagem: `O atributo '${faltando}' não foi encontrado, porém é obrigatório para o registro do proprietario número ${i + 1}.`
                 }
             };
-            console.log(chalk.bgRed.bold(`Não foi possível registrar o proprietario número ${i + 1}. Atributo '${faltando}' faltando.\n`), `ReferenceError: erro is not defined\n     at deletaproprietarioPorId (file:///Z:/Projetos/Imobiliaria-Socrammon/backend/src/models/proprietario.js:53:0)\n     at async file:///Z:/Projetos/Imobiliaria-Socrammon/backend/src/routes/proprietarios.routes.js:110:0\n`);
+            console.log(chalk.bgRed.bold(`Não foi possível registrar o proprietario número ${i + 1}. Atributo '${faltando}' faltando.\n`));
+            return res.send(resposta);
+        }
+
+        if (!proprietario.cpf && !proprietario.cnpj) {
+
+            const resposta = {
+                erro: {
+                    mensagem: `O proprietário número ${i + 1} deve informar CPF ou CNPJ.`
+                }
+            };
+            console.log(chalk.bgRed.bold(`Proprietário número ${i + 1} sem CPF e sem CNPJ.\n`));
             return res.send(resposta);
         }
 
     }
+
 
     next();
 
